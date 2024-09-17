@@ -39,11 +39,11 @@ export default function Register({ navigation, route }) {
     }).start();
     const [kirim, setKirim] = useState({
         api_token: api_token,
-        nama_orangtua: '',
+        nama_lengkap: '',
         nama_bayi: '',
         tanggal_lahir: moment().format('YYYY-MM-DD'),
         email: '',
-        nomorhp:'',
+        telepon: '',
         alamat: '',
         password: '',
         repassword: '',
@@ -56,7 +56,7 @@ export default function Register({ navigation, route }) {
 
         if (
             kirim.nama_lengkap.length === 0 &&
-            kirim.username.length === 0 &&
+            kirim.email.length === 0 &&
             kirim.password.length === 0
 
         ) {
@@ -69,9 +69,9 @@ export default function Register({ navigation, route }) {
             })
         }
 
-        else if (kirim.username.length === 0) {
+        else if (kirim.email.length === 0) {
             showMessage({
-                message: 'Masukan username',
+                message: 'Masukan email',
             });
         }
         else if (kirim.password.length === 0) {
@@ -90,7 +90,7 @@ export default function Register({ navigation, route }) {
             axios
                 .post(apiURL + 'register', kirim)
                 .then(res => {
-                    console.warn(res.data);
+                    console.log(res.data);
                     setLoading(false);
                     if (res.data.status == 404) {
                         toast.show(res.data.message, {
@@ -101,8 +101,8 @@ export default function Register({ navigation, route }) {
                         toast.show(res.data.message, {
                             type: 'success'
                         });
-                        storeData('user', res.data.data);
-                        navigation.replace('MainApp');
+
+                        navigation.replace('Login');
 
                     }
 
@@ -125,7 +125,7 @@ export default function Register({ navigation, route }) {
 
     const [usiaBayi, setUsiaBayi] = useState(0);
 
-    
+
     // Fungsi untuk menghandle perubahan tanggal
     const handleTanggalLahirChange = (selectedDate) => {
         // Set tanggal lahir di state
@@ -144,105 +144,110 @@ export default function Register({ navigation, route }) {
     return (
         <SafeAreaView style={{
             flex: 1,
-            width:'100%',
-            height:'100%',
-            backgroundColor:colors.white
+            width: '100%',
+            height: '100%',
+            backgroundColor: colors.white
         }}>
             {/* <MyHeader title="Daftar Akun" /> */}
 
             <ImageBackground source={require("../../assets/bgregister.png")} style={{
-                flex:1,
-                width:"100%",
-                height:'100%',
+                flex: 1,
+                width: "100%",
+                height: '100%',
 
             }}>
 
 
-            <MyHeader title="Daftar"/>
+                <MyHeader title="Daftar" />
 
-            <ScrollView showsVerticalScrollIndicator={false}>
-
-           
-
-                <View style={{
-                  padding:20,
-
-                
-                }}>
-
-                {/* Nama Orang Tua/Wali */}
-                <MyInput value={kirim.nama_orangtua} onChangeText={value => setKirim({...kirim,'nama_orangtua': value})} label="Nama Orang Tua/Wali" placeholder="Isi disini"/>
-
-                    <MyGap jarak={20}/>
-
-                  {/* Nama Bayi*/}
-                  <MyInput value={kirim.nama_bayi } onChangeText={value => setKirim({...kirim,'nama_bayi': value})} label="Nama Bayi" placeholder="Isi disini"/>
-
-                  
-                    <MyGap jarak={20}/>
-
-                  {/* Tanggal lahir Bayi*/}
-                  <MyCalendar onDateChange={handleTanggalLahirChange}   value={kirim.tanggal_lahir} label="Tanggal Lahir Bayi"/>
+                <ScrollView showsVerticalScrollIndicator={false}>
 
 
 
-                   {kirim.tanggal_lahir && (
-                            <Text style={{fontSize: 13,
-                            color:Color.blueGray[500],
-                            textAlign:'left',
-                            marginTop:10,
-                            left:10,
-                            fontFamily:fonts.primary[500]
+                    <View style={{
+                        padding: 20,
+
+
+                    }}>
+
+                        {/* Nama Orang Tua/Wali */}
+                        <MyInput value={kirim.nama_lengkap} onChangeText={value => setKirim({ ...kirim, 'nama_lengkap': value })} label="Nama Orang Tua/Wali" placeholder="Isi disini" />
+
+                        <MyGap jarak={20} />
+
+                        {/* Nama Bayi*/}
+                        <MyInput value={kirim.nama_bayi} onChangeText={value => setKirim({ ...kirim, 'nama_bayi': value })} label="Nama Bayi" placeholder="Isi disini" />
+
+
+                        <MyGap jarak={20} />
+
+                        {/* Tanggal lahir Bayi*/}
+                        <MyCalendar onDateChange={handleTanggalLahirChange} value={kirim.tanggal_lahir} label="Tanggal Lahir Bayi" />
+
+
+
+                        {kirim.tanggal_lahir && (
+                            <Text style={{
+                                fontSize: 13,
+                                color: Color.blueGray[500],
+                                textAlign: 'left',
+                                marginTop: 10,
+                                left: 10,
+                                fontFamily: fonts.primary[500]
                             }}>
                                 Usia bayi saat ini:  {usiaBayi} tahun
                             </Text>
                         )}
 
-                <MyGap jarak={20}/>
+                        <MyGap jarak={20} />
 
-                  {/* Email*/}
-                <MyInput onChangeText={value => setKirim({...kirim,'email': value})} value={kirim.email}  label="Email" placeholder="Isi disini"/>
-                 
-                <MyGap jarak={20}/>
-                    {/* Nomor HP*/}
-                <MyInput  onChangeText={value => setKirim({...kirim,'nomorhp': value})} value={kirim.nomorhp}  label="Nomor HP" placeholder="Isi disini"/>
-                 
-                <MyGap jarak={20}/>
-                    {/* Alamat*/}
-                <MyInput  onChangeText={value => setKirim({...kirim,'alamat': value})} value={kirim.alamat}  label="Alamat" placeholder="Isi disini"/>
-                 
-                <MyGap jarak={20}/>
-                    {/* Buat Password*/}
-                <MyInput  onChangeText={value => setKirim({...kirim,'password': value})} value={kirim.password}  label="Buat Password" placeholder="Isi disini" secureTextEntry='true'/>
+                        {/* Email*/}
+                        <MyInput onChangeText={value => setKirim({ ...kirim, 'email': value })} value={kirim.email} label="Email" placeholder="Isi disini" />
 
-                <MyGap jarak={20}/>
-                    {/* Konfimasi Password*/}
-                <MyInput onChangeText={value => setKirim({...kirim,'repassword': value})}  value={kirim.repassword}  label="Konfirmasi Password" placeholder="Isi disini" secureTextEntry='true'/>
+                        <MyGap jarak={20} />
+                        {/* Nomor HP*/}
+                        <MyInput keyboardType='phone-pad' onChangeText={value => setKirim({ ...kirim, 'telepon': value })} value={kirim.telepon} label="Nomor HP" placeholder="Isi disini" />
 
+                        <MyGap jarak={20} />
+                        {/* Alamat*/}
+                        <MyInput onChangeText={value => setKirim({ ...kirim, 'alamat': value })} value={kirim.alamat} label="Alamat" placeholder="Isi disini" />
 
-                {/* Button */}
-            <MyGap jarak={10}/>
-            <MyButton title="Daftar"/>
+                        <MyGap jarak={20} />
+                        {/* Buat Password*/}
+                        <MyInput onChangeText={value => setKirim({ ...kirim, 'password': value })} value={kirim.password} label="Buat Password" placeholder="Isi disini" secureTextEntry='true' />
 
-            {/* Button Daftar */}
-            <MyGap jarak={10}/>
-            <TouchableWithoutFeedback onPress={() => navigation.navigate('Register')}>
-              <View style={{padding:10}}>
-                  <Text style={{
-                    fontFamily:fonts.primary[500],
-                    textAlign:"center",
-                    color:colors.primary,
-                    fontSize:13
-                    
-                  }}>Sudah punya akun? Silakan <Text style={{
-                    fontWeight:'bold'
-                  }}>masuk</Text></Text>
-              </View>
-            </TouchableWithoutFeedback>
-                </View>
+                        <MyGap jarak={20} />
+                        {/* Konfimasi Password*/}
+                        <MyInput onChangeText={value => setKirim({ ...kirim, 'repassword': value })} value={kirim.repassword} label="Konfirmasi Password" placeholder="Isi disini" secureTextEntry='true' />
 
 
-            </ScrollView>
+                        {/* Button */}
+                        <MyGap jarak={10} />
+                        <MyButton title="Daftar" onPress={simpan} />
+
+                        {/* Button Daftar */}
+                        <MyGap jarak={10} />
+                        <TouchableWithoutFeedback onPress={() => navigation.navigate('Register')}>
+                            <View style={{ padding: 10 }}>
+                                <Text style={{
+                                    fontFamily: fonts.primary[500],
+                                    textAlign: "center",
+                                    color: colors.primary,
+                                    fontSize: 13
+
+                                }}>Sudah punya akun? Silakan <Text style={{
+                                    fontWeight: 'bold'
+                                }}>masuk</Text></Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+
+                        {loading && <MyLoading />}
+                    </View>
+
+
+
+
+                </ScrollView>
             </ImageBackground>
 
         </SafeAreaView >

@@ -27,11 +27,11 @@ export default function Login({ navigation, route }) {
   const card = new Animated.Value(50);
   const toast = useToast();
   const masuk = () => {
-    if (kirim.username.length == 0 && kirim.length == 0) {
-      toast.show('Username dan kata sandi tidak boleh kosong', { type: 'warning' })
+    if (kirim.email.length == 0 && kirim.length == 0) {
+      toast.show('Email dan kata sandi tidak boleh kosong', { type: 'warning' })
 
-    } else if (kirim.username.length == 0) {
-      toast.show('Username tidak boleh kosong', { type: 'warning' })
+    } else if (kirim.email.length == 0) {
+      toast.show('Email tidak boleh kosong', { type: 'warning' })
     } else if (kirim.password.length == 0) {
       toast.show('Kata sandi tidak boleh kosong', { type: 'warning' })
     } else {
@@ -53,7 +53,7 @@ export default function Login({ navigation, route }) {
 
   const [kirim, setKirim] = useState({
     api_token: api_token,
-    username: '',
+    email: '',
     password: '',
   })
 
@@ -77,83 +77,83 @@ export default function Login({ navigation, route }) {
   }, []);
 
   return (
-    <SafeAreaView  style={{
+    <SafeAreaView style={{
       flex: 1,
-      width:'100%',
-      height:'100%', 
-      padding:0,
-      margin:0
-    
+      width: '100%',
+      height: '100%',
+      padding: 0,
+      margin: 0
+
     }}
     >
-    
-    <ImageBackground style={{
-      flex:1,
-      width:'100%',
-      height:'100%',
-    }} source={require('../../assets/bglogin.png')}>
 
-    <ScrollView>
+      <ImageBackground style={{
+        flex: 1,
+        width: '100%',
+        height: '100%',
+      }} source={require('../../assets/bglogin.png')}>
 
-      <View style={{
-        padding:10
-      }}>
-        <View style={{
-          alignItems:'center',
-          marginTop:'30%'
-        }}>
-          
-      <Image style={{
-        width:286,
-        height:380,
-        
-      }} source={require('../../assets/logosplash.png')}/>
-        </View>
+        <ScrollView>
 
+          <View style={{
+            padding: 10
+          }}>
+            <View style={{
+              alignItems: 'center',
+              marginTop: '30%'
+            }}>
 
-        <View style={{
-          padding:30,
-          marginTop: -30
-        }}>
-          {/* FORM VIEW */}
+              <Image style={{
+                width: 286,
+                height: 380,
 
-          {/* Email */}
-          <MyInput placeholder="Email"/>
+              }} source={require('../../assets/logosplash.png')} />
+            </View>
 
 
-            {/* Pasword */}
-            <MyInput placeholder="Password"/>
+            <View style={{
+              padding: 30,
+              marginTop: -30
+            }}>
+              {/* FORM VIEW */}
 
-            {/* Button */}
-            <MyGap jarak={10}/>
-            <MyButton title="Masuk"/>
+              {/* Email */}
+              <MyInput placeholder="Email" onChangeText={x => setKirim({ ...kirim, email: x })} />
 
-            {/* Button Daftar */}
-            <MyGap jarak={10}/>
-            <TouchableWithoutFeedback onPress={() => navigation.navigate('Register')}>
-              <View style={{padding:10}}>
+
+              {/* Pasword */}
+              <MyInput secureTextEntry={true} placeholder="Password" onChangeText={x => setKirim({ ...kirim, password: x })} />
+
+              {/* Button */}
+              <MyGap jarak={10} />
+              <MyButton title="Masuk" onPress={masuk} />
+
+              {/* Button Daftar */}
+              <MyGap jarak={10} />
+              <TouchableWithoutFeedback onPress={() => navigation.navigate('Register')}>
+                <View style={{ padding: 10 }}>
                   <Text style={{
-                    fontFamily:fonts.primary[500],
-                    textAlign:"center",
-                    color:colors.primary,
-                    fontSize:13
-                    
+                    fontFamily: fonts.primary[500],
+                    textAlign: "center",
+                    color: colors.primary,
+                    fontSize: 13
+
                   }}>Belum punya akun? Silakan <Text style={{
-                    fontWeight:'bold'
+                    fontWeight: 'bold'
                   }}>daftar</Text></Text>
-              </View>
-            </TouchableWithoutFeedback>
-            
-
-        </View>
-
-      </View>
-
-    </ScrollView>
+                </View>
+              </TouchableWithoutFeedback>
 
 
-    </ImageBackground>
-  
+            </View>
+
+          </View>
+
+        </ScrollView>
+
+
+      </ImageBackground>
+
     </ SafeAreaView>
   );
 }

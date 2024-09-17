@@ -144,11 +144,13 @@ export default function ({ navigation, route }) {
                             </View>
                         </View>
                         <View style={{ padding: 10, }}>
-                            <MyList label="Nama Lengkap" value={user.nama_lengkap} />
-                            <MyList label="Username" value={user.username} />
-                            <MyList label="Telepon" value={user.telepon} />
-                            <MyList label="Jenis Kelamin" value={user.jenis_kelamin} />
+                            <MyList label="Nama Orantua / Wali" value={user.nama_lengkap} />
+                            <MyList label="Nama Bayi" value={user.nama_bayi} />
                             <MyList label="Tanggal Lahir" value={moment(user.tanggal_lahir).format('dddd, DD MMMM YYYY') + ' ( ' + moment().diff(user.tanggal_lahir, 'year') + ' Tahun )'} />
+                            <MyList label="Email" value={user.email} />
+                            <MyList label="Telepon" value={user.telepon} />
+                            <MyList label="Alamat" value={user.alamat} />
+
                         </View>
                         {/* data detail */}
                     </View>

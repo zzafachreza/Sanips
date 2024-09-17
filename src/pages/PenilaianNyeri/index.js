@@ -3,16 +3,18 @@ import React, { useState } from 'react'
 import { colors, fonts } from '../../utils'
 import { MyButton, MyGap, MyHeader, MyRadio } from '../../components'
 import { ScrollView } from 'react-native'
+import { apiURL, getData } from '../../utils/localStorage'
+import axios from 'axios'
 
 export default function PenilaianNyeri({ navigation }) {
-   
-      // State untuk melacak pilihan radio
+
+    // State untuk melacak pilihan radio
     const [selectedValue, setSelectedValue] = useState({
-        EkspresiWajah:null,
-        Tangisan:null,
-        PolaNafas:null,
-        Tungkai:null,
-        Kesadaran:null
+        EkspresiWajah: null,
+        Tangisan: null,
+        PolaNafas: null,
+        Tungkai: null,
+        Kesadaran: null
 
 
     });
@@ -26,8 +28,8 @@ export default function PenilaianNyeri({ navigation }) {
 
     // Fungsi untuk menangani klik tombol "Selanjutnya"
     const handleNext = () => {
-          // Validasi apakah pilihan radio sudah dipilih di setiap halaman
-          if (currentPage === 1 && !selectedValue.EkspresiWajah) {
+        // Validasi apakah pilihan radio sudah dipilih di setiap halaman
+        if (currentPage === 1 && !selectedValue.EkspresiWajah) {
             Alert.alert('Error', 'Silakan pilih ekspresi wajah sebelum melanjutkan.');
         } else if (currentPage === 2 && !selectedValue.Tangisan) {
             Alert.alert('Error', 'Silakan pilih tangisan sebelum melanjutkan.');
@@ -44,15 +46,15 @@ export default function PenilaianNyeri({ navigation }) {
                 showScore(); // Tampilkan hasil score saat di halaman terakhir
             }
         }
-      
+
     };
 
- // Fungsi untuk menangani klik tombol "Kembali"
- const handleBack = () => {
-    if (currentPage > 1) {
-        setCurrentPage(currentPage - 1); // Kembali ke halaman sebelumnya
-    }
-};
+    // Fungsi untuk menangani klik tombol "Kembali"
+    const handleBack = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1); // Kembali ke halaman sebelumnya
+        }
+    };
     // Fungsi untuk menangani pilihan radio dan menambah score
     const handleSelect = (question, score, value) => {
         setSelectedValue({
@@ -81,14 +83,15 @@ export default function PenilaianNyeri({ navigation }) {
         setCurrentPage(6); // Pindah ke halaman hasil
     };
 
+
     const getImageForScore = () => {
-        if (totalScore <= 2) {
+        if (totalScore >= 0 && totalScore <= 2) {
             return {
                 image: require('../../assets/skor_1-2.png'), // Gambar untuk score 1-2
                 width: 276,  // Ukuran untuk score 1-2
                 height: 390
             };
-        } else if (totalScore <= 4) {
+        } else if (totalScore >= 3 && totalScore <= 4) {
             return {
                 image: require('../../assets/skor_3-4.png'), // Gambar untuk score 3-4
                 width: 315,  // Ukuran untuk score 3-4
@@ -104,15 +107,57 @@ export default function PenilaianNyeri({ navigation }) {
     };
 
 
-       // Mendapatkan image dan ukurannya berdasarkan score
-       const { image, width, height } = getImageForScore();
+    // Mendapatkan image dan ukurannya berdasarkan score
+    const { image, width, height } = getImageForScore();
 
-        // Fungsi untuk mengarahkan ke halaman rekomendasi
+    // Fungsi untuk mengarahkan ke halaman rekomendasi
     const goToRecommendation = () => {
-        navigation.navigate('Rekomendasi', {totalScore: totalScore}); // Navigasi ke halaman rekomendasi
+
+
+
+        // navigation.navigate('Rekomendasi', { totalScore: totalScore });
+        //  Navigasi ke halaman rekomendasi
     };
 
-  
+
+    const sendServer = (x) => {
+        let nilai = 0;
+        let keterangan = '';
+
+        if (x >= 0 && x <= 2) {
+
+            nilai = x;
+            keterangan = 'Nyeri ringan tidak nyeri'
+
+        } else if (x >= 3 && x <= 4) {
+
+            nilai = x;
+            keterangan = 'Nyeri sedang (Intervensi tanpa obat/non farmakologis, dievaluasi selama 30 menit)'
+        } else {
+
+            nilai = x;
+            keterangan = 'Nyeri kuat/hebat (intervensi nyeri farmakologis/diberikan analgesik dan dievaluasi selama 30 menit)'
+        }
+
+        getData('user').then(u => {
+            axios.post(apiURL + 'add_nilai', {
+                fid_user: u.id,
+                nilai: nilai,
+                keterangan: keterangan
+            }).then(res => {
+                console.log(res.data);
+                if (nilai >= 0 && nilai <= 2) {
+                    navigation.replace('MainApp')
+                } else if (nilai >= 3) {
+                    navigation.navigate('Rekomendasi', { totalScore: nilai })
+                }
+            })
+        })
+
+
+    }
+
+
 
     return (
         <SafeAreaView style={{
@@ -142,13 +187,13 @@ export default function PenilaianNyeri({ navigation }) {
                             </View>
 
                             <View>
-                            <MyRadio
+                                <MyRadio
                                     label="Wajah tenang & ekspresi netral"
                                     selected={selectedValue["EkspresiWajah"] === 'Wajah tenang & ekspresi netral'}
                                     onPress={() => handleSelect('EkspresiWajah', 0, 'Wajah tenang & ekspresi netral')} // Score 1
                                 />
 
-                                    <MyRadio
+                                <MyRadio
                                     label="Otot wajah tegang, alis berkerut, dagu, dan rahang tegang (Ekspresi wajah negatif, hidung, mulut, dan alis berkerut)"
                                     selected={selectedValue["EkspresiWajah"] === 'Otot wajah tegang'}
                                     onPress={() => handleSelect('EkspresiWajah', 1, 'Otot wajah tegang')} // Score 2
@@ -162,9 +207,9 @@ export default function PenilaianNyeri({ navigation }) {
                     {/* Halaman 2: Setelah klik "Selanjutnya" */}
                     {currentPage === 2 && (
                         <View>
-                        <View style={{
-                          padding:10
-                        }}>
+                            <View style={{
+                                padding: 10
+                            }}>
                                 <Text style={{
                                     fontFamily: fonts.primary[600],
                                     fontSize: 18,
@@ -176,7 +221,7 @@ export default function PenilaianNyeri({ navigation }) {
                                 <Image style={{
                                     width: 274,
                                     height: 257,
-                                    alignSelf:'center'
+                                    alignSelf: 'center'
 
                                 }} source={require('../../assets/icon_tangisan.png')} />
                             </View>
@@ -186,18 +231,18 @@ export default function PenilaianNyeri({ navigation }) {
                                     label="Tenang & tidak menangis"
                                     selected={selectedValue["Tangisan"] === 'Tenang & tidak menangis'}
                                     onPress={() => handleSelect('Tangisan', 0, 'Tenang & tidak menangis')} // Score 2
-                                  
+
                                 />
 
                                 <MyRadio
                                     label="Merengek ringan, kadang-kadang"
                                     selected={selectedValue["Tangisan"] === 'Merengek ringan, kadang-kadang'}
                                     onPress={() => handleSelect('Tangisan', 1, 'Merengek ringan, kadang-kadang')} // Score 2
-                                    
+
                                 />
 
 
-                                 <MyRadio
+                                <MyRadio
                                     label="Berteriak kencang, menarik, melengking terus-terusan"
                                     selected={selectedValue["Tangisan"] === 'Berteriak kencang, menarik, melengking terus-terusan'}
                                     onPress={() => handleSelect('Tangisan', 2, 'Berteriak kencang, menarik, melengking terus-terusan')} // Score 2
@@ -205,26 +250,26 @@ export default function PenilaianNyeri({ navigation }) {
 
 
                                 <View style={{
-                                    padding:10,
-                                    alignItems:'center'
+                                    padding: 10,
+                                    alignItems: 'center'
                                 }}>
-                                        <Image style={{
-                                            width:307,
-                                            height:94,
-                                        }} source={require('../../assets/catatan.png')}/>
+                                    <Image style={{
+                                        width: 307,
+                                        height: 94,
+                                    }} source={require('../../assets/catatan.png')} />
                                 </View>
                             </View>
-                            
+
                         </View>
                     )}
 
 
-                     {/* Halaman 3: Setelah klik "Selanjutnya" */}
-                     {currentPage === 3 && (
+                    {/* Halaman 3: Setelah klik "Selanjutnya" */}
+                    {currentPage === 3 && (
                         <View>
-                        <View style={{
-                          padding:10
-                        }}>
+                            <View style={{
+                                padding: 10
+                            }}>
                                 <Text style={{
                                     fontFamily: fonts.primary[600],
                                     fontSize: 18,
@@ -236,7 +281,7 @@ export default function PenilaianNyeri({ navigation }) {
                                 <Image style={{
                                     width: 223,
                                     height: 223,
-                                    alignSelf:'center'
+                                    alignSelf: 'center'
 
                                 }} source={require('../../assets/pola_nafas.png')} />
                             </View>
@@ -255,32 +300,32 @@ export default function PenilaianNyeri({ navigation }) {
                                 />
 
 
-                               
+
                             </View>
-                            
+
                         </View>
                     )}
 
 
 
-                        {/* Halaman 4: Setelah klik "Selanjutnya" */}
-                        {currentPage === 4 && (
+                    {/* Halaman 4: Setelah klik "Selanjutnya" */}
+                    {currentPage === 4 && (
                         <View>
-                        <View style={{
-                          padding:10
-                        }}>
+                            <View style={{
+                                padding: 10
+                            }}>
                                 <Text style={{
                                     fontFamily: fonts.primary[600],
                                     fontSize: 18,
                                     color: colors.primary,
                                     textAlign: "center"
                                 }}>
-                                  Tungkai (Lengan/Kaki)
+                                    Tungkai (Lengan/Kaki)
                                 </Text>
                                 <Image style={{
                                     width: 232,
                                     height: 232,
-                                    alignSelf:'center'
+                                    alignSelf: 'center'
 
                                 }} source={require('../../assets/tungkai.png')} />
                             </View>
@@ -299,9 +344,9 @@ export default function PenilaianNyeri({ navigation }) {
                                 />
 
 
-                               
+
                             </View>
-                            
+
                         </View>
                     )}
 
@@ -309,21 +354,21 @@ export default function PenilaianNyeri({ navigation }) {
                     {/* Halaman 5: Setelah klik "Selanjutnya" */}
                     {currentPage === 5 && (
                         <View>
-                        <View style={{
-                          padding:10
-                        }}>
+                            <View style={{
+                                padding: 10
+                            }}>
                                 <Text style={{
                                     fontFamily: fonts.primary[600],
                                     fontSize: 18,
                                     color: colors.primary,
                                     textAlign: "center"
                                 }}>
-                                 Kesadaran
+                                    Kesadaran
                                 </Text>
                                 <Image style={{
                                     width: 223,
                                     height: 223,
-                                    alignSelf:'center'
+                                    alignSelf: 'center'
 
                                 }} source={require('../../assets/kesadaran.png')} />
                             </View>
@@ -342,14 +387,14 @@ export default function PenilaianNyeri({ navigation }) {
                                 />
 
 
-                               
+
                             </View>
-                            
+
                         </View>
                     )}
 
-                     {/* Menampilkan hasil score di halaman yang sama setelah "Selesai" */}
-                     {currentPage === 6  &&(
+                    {/* Menampilkan hasil score di halaman yang sama setelah "Selesai" */}
+                    {currentPage === 6 && (
                         <View style={{ marginTop: 0, padding: 10, backgroundColor: '#f9f9f9', borderRadius: 10 }}>
                             <Text style={{
                                 fontFamily: fonts.primary[600],
@@ -361,33 +406,33 @@ export default function PenilaianNyeri({ navigation }) {
                                 SKOR {totalScore}
                             </Text>
 
-                            
+
                             {/* Menampilkan gambar berdasarkan score */}
                             <View style={{
                                 marginTop: 10
                             }}>
-                          <Image 
-                                source={image} 
-                                style={{ width: width, height: height, alignSelf: 'center', marginVertical: 20 }} 
-                            />
-
-
-                            {/* Conditional Rendering untuk Tombol berdasarkan Score */}
-                            {totalScore <= 2 && (
-                                <MyButton 
-                                    title="Selesai" 
-                                    colorText={colors.white} 
-                                    onPress={() => navigation.navigate('MainApp')} // Kembali ke halaman utama
+                                <Image
+                                    source={image}
+                                    style={{ width: width, height: height, alignSelf: 'center', marginVertical: 20 }}
                                 />
-                            )}
 
-                            {(totalScore > 2) && (
-                                <MyButton 
-                                    title="Rekomendasi" 
-                                    colorText={colors.white} 
-                                    onPress={goToRecommendation} // Navigasi ke halaman rekomendasi
-                                />
-                            )}
+
+                                {/* Conditional Rendering untuk Tombol berdasarkan Score */}
+                                {totalScore <= 2 && (
+                                    <MyButton
+                                        title="Selesai"
+                                        colorText={colors.white}
+                                        onPress={() => sendServer(totalScore)} // Kembali ke halaman utama
+                                    />
+                                )}
+
+                                {(totalScore > 2) && (
+                                    <MyButton
+                                        title="Rekomendasi"
+                                        colorText={colors.white}
+                                        onPress={() => sendServer(totalScore)} // Navigasi ke halaman rekomendasi
+                                    />
+                                )}
                             </View>
                         </View>
                     )}
@@ -395,25 +440,25 @@ export default function PenilaianNyeri({ navigation }) {
 
 
                 {currentPage !== 6 && ( // Hide buttons on result page
-                <View style={{ padding: 20, marginTop:10}}>
-                    <View style={{}}>
+                    <View style={{ padding: 20, marginTop: 10 }}>
+                        <View style={{}}>
 
-                        <MyButton 
-                            title={currentPage === 5 ? "Selesai" : "Selanjutnya"} 
-                            colorText={colors.white}
-                            onPress={handleNext} 
-                        />
-
-                        {currentPage > 1 && (
-                            <MyButton 
-                                title="Kembali" 
-                                colorText={colors.white} 
-                                onPress={handleBack} 
+                            <MyButton
+                                title={currentPage === 5 ? "Selesai" : "Selanjutnya"}
+                                colorText={colors.white}
+                                onPress={handleNext}
                             />
-                        )}
+
+                            {currentPage > 1 && (
+                                <MyButton
+                                    title="Kembali"
+                                    colorText={colors.white}
+                                    onPress={handleBack}
+                                />
+                            )}
+                        </View>
                     </View>
-                </View>
-            )}
+                )}
             </ScrollView>
 
 
