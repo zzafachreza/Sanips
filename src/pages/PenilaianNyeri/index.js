@@ -49,6 +49,14 @@ export default function PenilaianNyeri({ navigation }) {
 
     };
 
+    const [param, setParam] = useState({
+        EkspresiWajah: 0,
+        Tangisan: 0,
+        PolaNafas: 0,
+        Tungkai: 0,
+        Kesadaran: 0,
+    })
+
     // Fungsi untuk menangani klik tombol "Kembali"
     const handleBack = () => {
         if (currentPage > 1) {
@@ -60,7 +68,12 @@ export default function PenilaianNyeri({ navigation }) {
         setSelectedValue({
             ...selectedValue,
             [question]: value,
+
         });
+        setParam({
+            ...param,
+            [question]: score
+        })
         // Update score
         setTotalScore(totalScore + score);
     };
@@ -121,6 +134,8 @@ export default function PenilaianNyeri({ navigation }) {
 
 
     const sendServer = (x) => {
+
+        console.log(param)
         let nilai = 0;
         let keterangan = '';
 
@@ -142,8 +157,13 @@ export default function PenilaianNyeri({ navigation }) {
         getData('user').then(u => {
             axios.post(apiURL + 'add_nilai', {
                 fid_user: u.id,
+                eksperesi_wajah: param.EkspresiWajah,
+                tangisan: param.Tangisan,
+                pola_nafas: param.PolaNafas,
+                tungkai: param.Tungkai,
+                kesadaran: param.Kesadaran,
                 nilai: nilai,
-                keterangan: keterangan
+                keterangan: keterangan,
             }).then(res => {
                 console.log(res.data);
                 if (nilai >= 0 && nilai <= 2) {

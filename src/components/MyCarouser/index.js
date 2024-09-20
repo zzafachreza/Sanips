@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,29 +7,30 @@ import {
 } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import { apiURL } from '../../utils/localStorage';
 
 export default function MyCarouser() {
   const [activeSlide, setActiveSlide] = useState(0);
   const windowWidth = Dimensions.get('window').width;
   const navigation = useNavigation();
 
-  // Variabel ImageSLIDER berisi gambar-gambar slider
-  const ImageSLIDER = [
-    require('../../assets/slider_1.png'),
-    require('../../assets/slider_2.png'),
-    require('../../assets/slider_3.png'),
-  ];
+  useEffect(() => {
+    axios.post(apiURL + 'slider').then(res => {
+      console.log(res.data);
+      setData(res.data)
+    })
+  }, [])
 
-  const [data, setData] = useState([
-    { id: 1, image: ImageSLIDER[0] },
-    { id: 2, image: ImageSLIDER[1] },
-    { id: 3, image: ImageSLIDER[2] },
-  ]);
+
+  const [data, setData] = useState([]);
 
   const renderCarouselItem = ({ item }) => (
     <View style={styles.itemContainer}>
       <Image
-        source={item.image}
+        source={{
+          uri: item.image
+        }}
         style={styles.imageStyle}
       />
     </View>
